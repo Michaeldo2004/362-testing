@@ -8,7 +8,11 @@ app = Flask(__name__)
 def index():
     return render_template("index.html")
 
-@app.route('/stock_details', methods=['GET'])
+@app.route("/stock")
+def stock():
+    return render_template("stock.html")
+
+@app.route('/api/stock_details', methods=['GET'])
 def get_stock_details():
     stock_symbol = request.args.get('symbol')
     days_to_predict = int(request.args.get('days', 2))  # Default to 2 days if days param not provided
