@@ -101,7 +101,6 @@
 </head>
 
 <body>
-    <a href="index.html" class="back-button">Back</a>
     <div class="container">
         <h1>Stock Details</h1>
         <div class="select-container">
@@ -146,6 +145,8 @@
             </tr>
         </table>
         <button class="predict-button" onclick="predictStockPrices()">Predict Stock Prices!</button>
+        <div class="back-button" onclick="goBack()">Back</div>
+
     </div>
 
     <script>
@@ -198,12 +199,14 @@
         // Function to predict stock prices
         function predictStockPrices() {
             // Add your prediction logic here
-            alert('Stock prices predicted!');
             document.getElementById('predicted-prices-row').style.display = 'table-row';
         }
 
         // Fetch initial stock details for the default symbol (AAPL)
         fetchStockDetails('AAPL');
+        function goBack() {
+            window.history.back();
+        }
     </script>
 </body>
 
