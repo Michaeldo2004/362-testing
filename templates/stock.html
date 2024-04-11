@@ -1,56 +1,151 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stock Details</title>
     <style>
         body {
-            background-color: blue; /* Blue background */
-            color: red; /* Red font color */
-            font-family: Arial, sans-serif; /* Font family */
+            background-color: #222;
+            /* Dark background */
+            color: #fff;
+            /* Light font color */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            /* Font family */
             margin: 0;
             padding: 20px;
         }
+
         .container {
-            max-width: 600px;
+            max-width: 800px;
             margin: 0 auto;
-            padding: 20px;
-            background-color: white;
+            background-color: #333;
+            /* Dark container background */
             border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 30px;
         }
+
         h1 {
             text-align: center;
+            color: #4af;
+            /* Cyan heading color */
+            margin-bottom: 20px;
         }
-        ul {
-            list-style-type: none;
-            padding: 0;
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
         }
-        li {
-            margin-bottom: 10px;
+
+        th,
+        td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #555;
+            /* Light gray border */
         }
+
+        th {
+            background-color: #444;
+            /* Dark gray background for table headers */
+        }
+
         .label {
             font-weight: bold;
+            color: #4af;
+            /* Cyan label color */
+        }
+
+        .predict-button {
+            margin-top: 20px;
+            width: 100%;
+            padding: 10px;
+            background-color: #4af;
+            /* Cyan button color */
+            color: #fff;
+            /* White font color */
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .predict-button:hover {
+            background-color: #3783b3;
+            /* Darker cyan on hover */
+        }
+
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: #4af;
+            /* Cyan button color */
+            color: #fff;
+            /* White font color */
+            border: none;
+            border-radius: 5px;
+            padding: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .back-button:hover {
+            background-color: #3783b3;
+            /* Darker cyan on hover */
         }
     </style>
 </head>
+
 <body>
+    <a href="index.html" class="back-button">Back</a>
     <div class="container">
         <h1>Stock Details</h1>
-        <label for="symbol-select">Select Symbol:</label>
-        <select id="symbol-select">
-            <option value="AAPL">AAPL</option>
-            <option value="GOOG">GOOG</option>
-            <option value="MSFT">MSFT</option>
-        </select>
-        <ul>
-            <li><span class="label">Symbol:</span> <span id="symbol"></span></li>
-            <li><span class="label">Current Price:</span> $<span id="current-price"></span></li>
-            <li><span class="label">Stock Count:</span> <span id="stock-count"></span></li>
-            <li><span class="label">Market Cap:</span> $<span id="market-cap"></span></li>
-            <li><span class="label">Predicted Prices (2d):</span> <span id="predicted-prices"></span></li>
-        </ul>
+        <div class="select-container">
+            <label for="symbol-select">Select Symbol:</label>
+            <select id="symbol-select">
+                <option value="AAPL">AAPL</option>
+                <option value="GOOG">GOOG</option>
+                <option value="MSFT">MSFT</option>
+                <option value="NVDA">NVDA</option>
+                <option value="AMZN">AMZN</option>
+                <option value="INTC">INTC</option>
+                <option value="TSLA">TSLA</option>
+                <option value="TSM">TSM</option>
+                <option value="XOM">XOM</option>
+                <option value="ORCL">ORCL</option>
+            </select>
+        </div>
+        <table>
+            <tr>
+                <th class="label">Attribute</th>
+                <th>Data</th>
+            </tr>
+            <tr>
+                <td class="label">Symbol</td>
+                <td id="symbol"></td>
+            </tr>
+            <tr>
+                <td class="label">Current Price</td>
+                <td id="current-price"></td>
+            </tr>
+            <tr>
+                <td class="label">Stock Count</td>
+                <td id="stock-count"></td>
+            </tr>
+            <tr>
+                <td class="label">Market Cap</td>
+                <td id="market-cap"></td>
+            </tr>
+            <tr id="predicted-prices-row" style="display: none;">
+                <td class="label">Predicted Prices (2d)</td>
+                <td id="predicted-prices"></td>
+            </tr>
+        </table>
+        <button class="predict-button" onclick="predictStockPrices()">Predict Stock Prices!</button>
     </div>
 
     <script>
@@ -70,7 +165,10 @@
 
         // Function to fetch stock details based on selected symbol
         function fetchStockDetails(symbol) {
-            fetch(`api/stock_details?symbol=${symbol}`)
+            // Hide the predicted prices row
+            document.getElementById('predicted-prices-row').style.display = 'none';
+
+            fetch(`/api/stock_details?symbol=${symbol}`)
                 .then(response => response.json())
                 .then(data => {
                     // Update HTML with stock details
@@ -87,29 +185,26 @@
 
                     // Display the predicted price range
                     document.getElementById('predicted-prices').textContent = priceRange;
-
-                    // Clear the existing list of predicted prices
-                    const predictedPricesList = document.getElementById('predicted-prices-list');
-                    predictedPricesList.innerHTML = '';
-
-                    // Display the individual predicted prices in a list
-                    predictedPrices.forEach(price => {
-                        const listItem = document.createElement('li');
-                        listItem.textContent = `$${price.toFixed(2)}`;
-                        predictedPricesList.appendChild(listItem);
-                    });
                 })
-                .catch(error => console.error('Error fetching stock details:', error));
+                .catch(error => console.error('Error fetching stock details:',error));
         }
 
         // Event listener for when the symbol selection changes
-        document.getElementById('symbol-select').addEventListener('change', function(event) {
+        document.getElementById('symbol-select').addEventListener('change',function (event) {
             const selectedSymbol = event.target.value;
             fetchStockDetails(selectedSymbol);
         });
+
+        // Function to predict stock prices
+        function predictStockPrices() {
+            // Add your prediction logic here
+            alert('Stock prices predicted!');
+            document.getElementById('predicted-prices-row').style.display = 'table-row';
+        }
 
         // Fetch initial stock details for the default symbol (AAPL)
         fetchStockDetails('AAPL');
     </script>
 </body>
+
 </html>
